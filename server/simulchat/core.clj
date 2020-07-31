@@ -9,14 +9,18 @@
    [ring.util.response :refer (response redirect content-type)])
   (:gen-class))
 
+(defonce websocket-clients (atom #{}))
+
 (def websocket-callbacks
   "WebSocket callback functions"
   {:on-open (fn [channel]
-              (async/send! channel "Ready to reverse your messages!"))
-   :on-close (fn [channel {:keys [code reason]}]
-               (println "close code:" code "reason:" reason))
+              (let [clients (swap! websocket-clients conj channel)]
+                (when (< 2 (count clients))
+                  (async/close channel))))
+   :on-close (fn [channel] (swap! websocket-clients disj channel))
    :on-message (fn [ch m]
-                 (async/send! ch (apply str (reverse m))))})
+                 (doseq [c (remove #{ch} @websocket-clients)]
+                   (async/send! c m)))})
 
 (defroutes routes
   (GET "/" {c :context} (redirect (str c "/index.html")))
