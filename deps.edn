@@ -1,8 +1,8 @@
 {:deps {org.clojure/clojure {:mvn/version "1.10.1"}
         org.immutant/web    {:mvn/version "2.1.10"}
-        compojure           {:mvn/version "1.6.1"}
+        compojure/compojure {:mvn/version "1.6.1"}
         ring/ring-core      {:mvn/version "1.8.1"}
-        environ             {:mvn/version "1.2.0"}}
+        environ/environ     {:mvn/version "1.2.0"}}
 
  :paths ["server" "resources"]
  :aliases {:test {:main-opts ["-m" "kaocha.runner" "--plugin" "cloverage"]

@@ -2,5 +2,4 @@
 set -e
 
 echo "Building simulchat server"
-cd server
 clojure -A:depstar -m hf.depstar.uberjar uberjar.jar
