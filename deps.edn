@@ -1,0 +1,16 @@
+{:deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.immutant/web    {:mvn/version "2.1.10"}
+        compojure           {:mvn/version "1.6.1"}
+        ring/ring-core      {:mvn/version "1.8.1"}
+        environ             {:mvn/version "1.2.0"}}
+
+ :paths ["server" "build"] ;; build is the frontend directory built by react-scripts
+ :aliases {:test {:main-opts ["-m" "kaocha.runner" "--plugin" "cloverage"]
+                  :extra-deps {lambdaisland/kaocha {:mvn/version "1.0.632"}
+                               lambdaisland/kaocha-cloverage {:mvn/version "1.0-45"}
+                               org.clojure/test.check {:mvn/version "1.0.0"}}
+                  :extra-paths ["server-test"]}
+           :dev {:extra-deps {org.clojure/test.check {:mvn/version "1.0.0"}}
+                 :jvm-opts ["-Dorg.slf4j.simpleLogger.logFile=System.out", "-DDOTENV_FILE=.env", "-Xmx300m -Xss512k -XX:CICompilerCount=2 -Dfile.encoding=UTF-8"]}
+           ;; for building uberjar for exec on Heroku
+           :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.94"}}}}}

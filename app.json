@@ -1,0 +1,16 @@
+{
+  "name": "Simulchat",
+  "description": "Talk... AT THE SAME TIME",
+  "repository": "https://github.com/jming422/simulchat",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "addons": ["heroku-postgresql:hobby-dev", "logdna:quaco"],
+  "buildpacks": [{ "url": "heroku/nodejs" }, { "url": "heroku/clojure" }],
+  "env": {
+    "CLOJURE_CLI_VERSION": { "value": "1.10.1.547" }
+  }
+}

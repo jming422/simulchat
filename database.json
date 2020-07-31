@@ -1,0 +1,6 @@
+{
+  "defaultEnv": { "ENV": "NODE_ENV" },
+  "sql-file": true,
+  "development": { "ssl": { "rejectUnauthorized": false } },
+  "production": { "ssl": { "rejectUnauthorized": false } }
+}
