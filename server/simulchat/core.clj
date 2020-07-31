@@ -31,7 +31,7 @@
           (web/run
            (-> routes
                (web-middleware/wrap-session {:timeout 20})
-                         ;; wrap the handler with websocket support
-                         ;; websocket requests will go to the callbacks, ring requests to the handler
+               ;; wrap the handler with websocket support
+               ;; websocket requests will go to the callbacks, ring requests to the handler
                (web-middleware/wrap-websocket websocket-callbacks))
-           (merge {"port" (or (env :port) "5000")} args))))
+           (merge {"host" (or (env :host) "localhost") "port" (or (env :port) "5000")} args))))
