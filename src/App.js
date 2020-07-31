@@ -1,23 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState, useCallback, useEffect } from 'react';
+import axios from 'axios';
+import useWebSocket from 'react-use-websocket';
+
 import './App.css';
 
 function App() {
+  const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
+  const [messages, setMessages] = useState([]);
+  const { sendMessage, lastMessage } = useWebSocket(wsUrl, { shouldReconnect: () => true });
+
+  useEffect(() => {
+    if (lastMessage) {
+      setMessages((old) => old.concat(lastMessage));
+    }
+  }, [lastMessage]);
+
+  const sendThingy = useCallback(() => {
+    console.log(`Sending message`);
+    sendMessage('Hello there hi');
+  }, [sendMessage]);
+
+  const [thing, setThing] = useState({});
+  const pingPong = async () => {
+    try {
+      const { status, data } = await axios.get('/api/ping');
+      setThing({ status, data });
+    } catch (err) {
+      const { status, data } = err.response;
+      setThing({ status, data });
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <ul>
+          {messages.map((msg, i) => (
+            <li key={i}>{msg?.data}</li>
+          ))}
+        </ul>
+        <button onClick={sendThingy}>CLICK HERE</button>
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Server told us {thing.status ?? 'nothing'} - {thing.data ?? 'nothing at all'}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <button onClick={pingPong}>OR HERE</button>
       </header>
     </div>
   );
