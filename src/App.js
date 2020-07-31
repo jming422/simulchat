@@ -107,31 +107,26 @@ const roomStyle = css`
 
 function ChatRoom({ username }) {
   const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
-  const [doc, changeDoc] = useCRDT('thedoc', wsUrl, {
-    testPerson: 'some text in here\nmoretextafternewline',
-    asdf: 'some text in here\nmoretextafternewline',
-  });
+  const [docSet, changeDoc] = useCRDT(wsUrl);
 
-  const users = _(doc).keys().without(username).value();
+  const users = _(docSet).keys().without(username).value();
 
-  if (!(username in doc)) {
-    changeDoc((oldDoc) => {
-      oldDoc[username] = '';
-    });
+  if (!(username in docSet)) {
+    changeDoc(username, { text: '' });
   }
 
   const updateText = (newText) => {
-    changeDoc((oldDoc) => {
-      oldDoc[username] += newText;
+    changeDoc(username, (oldDoc) => {
+      oldDoc.text += newText;
     });
   };
 
   return (
     <div css={roomStyle}>
       {users.map((user) => (
-        <ChatBox key={user} username={user} content={doc[user]} />
+        <ChatBox key={user} username={user} content={docSet[user]?.text} />
       ))}
-      <MyChatBox username={username} content={doc[username]} updateText={updateText} />
+      <MyChatBox username={username} content={docSet[username]?.text} updateText={updateText} />
     </div>
   );
 }

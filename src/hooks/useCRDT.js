@@ -1,58 +1,50 @@
-import { useReducer, useEffect, useRef, useMemo, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 import * as Automerge from 'automerge';
-
-/**
- * Applies the change function to the Automerge document and returns the new document
- * @param {object} doc
- * @param {function} changeFn
- */
-function docReducer(doc, { changeFn }) {
-  console.log(`DOC BEFORE: ${JSON.stringify(doc)}`);
-  const newDoc = Automerge.change(doc, changeFn);
-  console.log(`DOC AFTER: ${JSON.stringify(newDoc)}`);
-  return newDoc;
-}
 
 /**
  * Replicates an Automerge document over WebSockets
  * with one other peer (may not work with > 2 peers)
  *
- * @param {string} docId A unique identifier of the document and must be the same across peers to see the same data
  * @param {string} wsUri URI of the WebSocket endpoint
- * @param {object} docInitState The initial state of the document. If falsy an empty object is used as the initial state
  * @returns {[object, function]} [doc, changeDoc]. `doc` is a POD JavaScript object and `changeDoc` executes your change
  * function on `doc` to get a new `doc`. So `changeDoc` is different from `setState` in that you mutate `doc` in your
  * function instead of taking the old `doc` and producing a new `doc`.
  */
-function useCRDT(docId, wsUri, docInitState = null) {
-  const [doc, dispatch] = useReducer(docReducer, docInitState, (initState) => Automerge.from(initState || {}));
-
-  const changeDoc = useMemo(() => (changeFn) => dispatch({ changeFn }), [dispatch]);
-
-  const [docSet, setDocSet] = useState(() => new Automerge.DocSet());
-
-  useEffect(() => {
-    setDocSet((dSet) => {
-      console.log(`setDoc: ${JSON.stringify(docId)} ${JSON.stringify(doc)}`);
-      dSet.setDoc(docId, doc);
-      return dSet;
-    });
-  }, [docId, doc]);
-
+function useCRDT(wsUri) {
   const { lastJsonMessage, sendJsonMessage, readyState } = useWebSocket(wsUri);
 
+  const docSetRef = useRef(new Automerge.DocSet());
   const conn = useRef(null);
 
+  const [docSetJS, setDocSetJS] = useState({});
   useEffect(() => {
-    conn.current = new Automerge.Connection(docSet, (msg) => {
+    const docset = docSetRef.current;
+    const handler = (docId, newDoc) => setDocSetJS((oldDocSetJS) => ({ ...oldDocSetJS, [docId]: newDoc }));
+    docset.registerHandler(handler);
+    return () => {
+      docset.unregisterHandler(handler);
+    };
+  }, []);
+
+  const changeDoc = useCallback((docId, updates) => {
+    const docset = docSetRef.current;
+    if (typeof updates === 'function') {
+      docset.setDoc(docId, Automerge.change(docset.getDoc(docId), updates));
+    } else {
+      docset.setDoc(docId, Automerge.from(updates));
+    }
+  }, []);
+
+  useEffect(() => {
+    conn.current = new Automerge.Connection(docSetRef.current, (msg) => {
       console.log(`sendMsg => ${JSON.stringify(msg)}`);
       return sendJsonMessage(msg);
     });
     return () => {
       conn.current = null;
     };
-  }, [docSet, sendJsonMessage]);
+  }, [sendJsonMessage]);
 
   useEffect(() => {
     if (conn.current) {
@@ -81,7 +73,7 @@ function useCRDT(docId, wsUri, docInitState = null) {
     }
   }, [lastJsonMessage, readyState]);
 
-  return [doc, changeDoc];
+  return [docSetJS, changeDoc];
 }
 
 export default useCRDT;
