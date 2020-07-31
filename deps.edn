@@ -4,7 +4,7 @@
         ring/ring-core      {:mvn/version "1.8.1"}
         environ             {:mvn/version "1.2.0"}}
 
- :paths ["server" "build"] ;; build is the frontend directory built by react-scripts
+ :paths ["server" "resources"]
  :aliases {:test {:main-opts ["-m" "kaocha.runner" "--plugin" "cloverage"]
                   :extra-deps {lambdaisland/kaocha {:mvn/version "1.0.632"}
                                lambdaisland/kaocha-cloverage {:mvn/version "1.0-45"}

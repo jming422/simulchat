@@ -120,9 +120,6 @@ dist/
 # Flycheck
 flycheck_*.el
 
-# server auth directory
-/server/
-
 # projectiles files
 .projectile
 
@@ -255,6 +252,7 @@ dist
 
 # production
 /build
+/resources/build
 
 # misc
 .DS_Store
