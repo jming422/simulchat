@@ -1,6 +1,6 @@
 /** @jsx jsx */
 /** @jsxFrag React.Fragment */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; // eslint-disable-line
 import { jsx, css, keyframes } from '@emotion/core';
 import _ from 'lodash';
 
@@ -25,11 +25,6 @@ const buttonMain = css`
   ${buttonStyle}
   color: var(--bg);
   background-color: var(--pri);
-`;
-const buttonAlt = css`
-  ${buttonStyle}
-  color: var(--ter);
-  background-color: var(--sec);
 `;
 
 const chatBoxStyle = css`
@@ -163,7 +158,7 @@ function PromptForName({ setUsername }) {
 }
 
 function App() {
-  const [username, setUsername] = useState('joe shmo'); //useState();
+  const [username, setUsername] = useState();
 
   return (
     <div css={container}>
