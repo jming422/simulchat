@@ -30,7 +30,7 @@
   },
   "scripts": {
     "start": "PORT=3001 react-scripts start",
-    "build": "rm -rf resources/build && react-scripts build && mv build resources/build",
+    "build": "rm -rf resources/build && react-scripts build && mkdir -p resources && mv build resources/build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "migrate": "db-migrate"
