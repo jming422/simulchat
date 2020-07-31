@@ -38,7 +38,7 @@ const chatBoxStyle = css`
   padding: 0rem 1rem;
   margin: 2rem;
   max-height: 20rem; // TODO USE CSS GRID
-  min-width: 20rem;
+  min-width: 22rem;
 `;
 
 function ChatBox({ username, content }) {
@@ -66,34 +66,22 @@ const inputPrompt = css`
   background-color: var(--bg);
 `;
 
-const blinkKF = (color) => keyframes`
-    0%   { color: ${color}; }
-    49%  { color: ${color}; }
-    60%  { color: transparent; }
-    99%  { color: transparent; }
-    100% { color: ${color}; }
-`;
-
-const blinker = (color) => css`
-  animation: ${blinkKF(color)} 1.2s infinite;
-`;
-
 function MyChatBox({ username, content, updateText }) {
-  const fakeInputRef = useRef(null);
+  const inputRef = useRef(null);
   useEffect(() => {
-    fakeInputRef.current.focus();
-  }, [fakeInputRef]);
+    inputRef.current.focus();
+  }, []);
 
-  const handleKeyPress = (e) => {
-    updateText(e.key === 'Enter' ? '\n' : e.key);
+  const handleChange = (e) => {
+    updateText(e.target.value);
   };
 
   return (
     <div css={[chatBoxStyle, anchored]}>
       <h3>{username}</h3>
       <pre>{content}</pre>
-      <div ref={fakeInputRef} css={inputPrompt} tabIndex="0" onKeyPress={handleKeyPress}>
-        &gt; <span css={blinker('var(--pri)')}>|</span>
+      <div css={inputPrompt}>
+        &gt; <textarea ref={inputRef} tabIndex="0" onChange={handleChange} rows="1" cols="20" />
       </div>
     </div>
   );
@@ -117,7 +105,7 @@ function ChatRoom({ username }) {
 
   const updateText = (newText) => {
     changeDoc(username, (oldDoc) => {
-      oldDoc.text += newText;
+      oldDoc.text = newText;
     });
   };
 
