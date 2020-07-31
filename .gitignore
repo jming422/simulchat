@@ -1,3 +1,6 @@
+# VSCode Clojure extension Calva
+.calva/
+
 # Clojure ignores
 pom.xml
 pom.xml.asc
