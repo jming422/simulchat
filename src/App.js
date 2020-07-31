@@ -85,7 +85,7 @@ function MyChatBox({ username, content, updateText }) {
   }, [fakeInputRef]);
 
   const handleKeyPress = (e) => {
-    updateText(e.key);
+    updateText(e.key === 'Enter' ? '\n' : e.key);
   };
 
   return (
@@ -109,9 +109,7 @@ function ChatRoom({ username }) {
   const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
   const [doc, changeDoc] = useCRDT('thedoc', wsUrl, {
     testPerson: 'some text in here\nmoretextafternewline',
-    testOtherPerson: 'some text in here\nmoretextafternewline',
-    testAnotherPerson: 'some text in here\nmoretextafternewline',
-    testMyPerson: 'some text in here\nmoretextafternewline',
+    asdf: 'some text in here\nmoretextafternewline',
   });
 
   const users = _(doc).keys().without(username).value();
