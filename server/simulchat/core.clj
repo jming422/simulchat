@@ -14,12 +14,17 @@
 (def websocket-callbacks
   "WebSocket callback functions"
   {:on-open (fn [channel]
+              (println "Opening WebSocket connection")
               (let [clients (swap! websocket-clients conj channel)]
                 (when (< 2 (count clients))
+                  (println "Exceeded max of 2 WebSocket connections! Closing current one...")
                   (async/close channel))))
-   :on-close (fn [channel] (swap! websocket-clients disj channel))
+   :on-close (fn [channel {:keys [code reason]}]
+               (println "Closing WebSocket connection (code " code ", reason " reason ")")
+               (swap! websocket-clients disj channel))
    :on-message (fn [ch m]
-                 (doseq [c (remove #{ch} @websocket-clients)]
+                 (println m " from " (async/originating-request ch))
+                 (doseq [c (remove #{ch} (deref websocket-clients))]
                    (async/send! c m)))})
 
 (defroutes routes
