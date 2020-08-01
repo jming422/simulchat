@@ -9,8 +9,6 @@
     }
   },
   "addons": ["logdna:quaco"],
-  "buildpacks": [{ "url": "heroku/nodejs" }, { "url": "heroku/clojure" }],
-  "env": {
-    "CLOJURE_CLI_VERSION": { "value": "1.10.1.547" }
-  }
+  "buildpacks": [{ "url": "heroku/nodejs" }],
+  "env": {}
 }

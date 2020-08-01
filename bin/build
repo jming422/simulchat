@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -e
-
-echo "Building simulchat server"
-clojure -A:depstar -m hf.depstar.uberjar uberjar.jar

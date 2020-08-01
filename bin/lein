@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-echo "Using tools.deps instead of Leiningen"
-exit 0

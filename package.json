@@ -10,25 +10,36 @@
   ],
   "dependencies": {
     "@emotion/core": "^10.0.28",
+    "@koa/cors": "^3.1.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "automerge": "^0.14.1",
     "axios": "^0.19.2",
     "http-proxy-middleware": "^1.0.5",
+    "koa": "^2.13.0",
+    "koa-bodyparser": "^4.3.0",
+    "koa-logger": "^3.2.1",
+    "koa-respond": "^2.1.0",
+    "koa-router": "^9.1.0",
+    "koa-send": "^5.0.1",
+    "koa-static": "^5.0.0",
     "lodash": "^4.17.19",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
     "react-use-websocket": "^2.1.1",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.0",
+    "ws": "^7.3.1"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"
   },
   "scripts": {
-    "start": "PORT=3001 react-scripts start",
-    "build": "rm -rf resources/build && react-scripts build && mkdir -p resources && mv build resources/build",
+    "start-frontend": "PORT=3001 react-scripts start",
+    "start-backend": "node server/index.js",
+    "start": "npm run start-backend & npm run start-frontend",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "migrate": "db-migrate"
