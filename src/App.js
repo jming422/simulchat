@@ -1,7 +1,7 @@
 /** @jsx jsx */
 /** @jsxFrag React.Fragment */
 import React, { useState, useRef, useEffect } from 'react'; // eslint-disable-line
-import { jsx, css, keyframes } from '@emotion/core';
+import { jsx, css } from '@emotion/core';
 import _ from 'lodash';
 
 import useCRDT from './hooks/useCRDT';
@@ -95,26 +95,22 @@ const roomStyle = css`
 
 function ChatRoom({ username }) {
   const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
-  const [docSet, changeDoc] = useCRDT(wsUrl);
+  const [doc, changeDoc] = useCRDT(wsUrl, { [username]: { text: '' } });
 
-  const users = _(docSet).keys().without(username).value();
-
-  if (!(username in docSet)) {
-    changeDoc(username, { text: '' });
-  }
+  const users = _(doc).keys().without(username).value();
 
   const updateText = (newText) => {
-    changeDoc(username, (oldDoc) => {
-      oldDoc.text = newText;
+    changeDoc((oldDoc) => {
+      oldDoc[username].text = newText;
     });
   };
 
   return (
     <div css={roomStyle}>
       {users.map((user) => (
-        <ChatBox key={user} username={user} content={docSet[user]?.text} />
+        <ChatBox key={user} username={user} content={doc[user]?.text} />
       ))}
-      <MyChatBox username={username} content={docSet[username]?.text} updateText={updateText} />
+      <MyChatBox username={username} content={doc[username]?.text} updateText={updateText} />
     </div>
   );
 }
