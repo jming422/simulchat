@@ -1,5 +1,6 @@
 (ns simulchat.core
   (:require
+   [clojure.data.json :as json]
    [immutant.web :as web]
    [immutant.web.async :as async]
    [immutant.web.middleware :as web-middleware]
@@ -9,30 +10,27 @@
    [ring.util.response :refer (redirect)])
   (:gen-class))
 
-(defonce websocket-clients (atom []))
+(defonce changes (atom []))
+(defonce websocket-clients (atom #{}))
 
 (def websocket-callbacks
   "WebSocket callback functions"
   {:on-open (fn [channel]
               (println "Opening WebSocket connection")
-              (let [clients (swap! websocket-clients
-                                   (fn [l c]
-                                     (if-not (first (filter #{c} l))
-                                       (conj l c)
-                                       l))
-                                   channel)]
-                (when (< 2 (count clients))
-                  (println "Exceeded max of 2 WebSocket connections! Closing current one...")
-                  (async/close channel))))
+              (swap! websocket-clients conj channel)
+              (async/send! channel (json/write-str @changes)))
    :on-close (fn [channel {:keys [code reason]}]
-               (println "Closing WebSocket connection (code " code ", reason " reason ")")
-               (swap! websocket-clients (fn [l c] (vec (remove #{c} l))) channel))
+               (println (str "Closing WebSocket connection (code " code ", reason " reason ")"))
+               (let [clients (swap! websocket-clients disj channel)]
+                 ;; TODO: squash race condition
+                 ;; clients could have changed and become non-zero
+                 (when (zero? (count clients))
+                   (reset! changes []))))
    :on-message (fn [ch m]
-                 (let [clients @websocket-clients
-                       i (first (filter #(= ch (nth clients %)) (range (count clients))))]
-                   (println m "from client" (+ i 1))
-                   (doseq [c (remove #{ch} clients)]
-                     (async/send! c m))))})
+                 (println "Received message:" m)
+                 (swap! changes #(vec (concat %1 %2)) (json/read-str m))
+                 (doseq [c (remove #{ch} @websocket-clients)]
+                   (async/send! c m)))})
 
 (defroutes routes
   (GET "/" {c :context} (redirect (str c "/index.html")))
