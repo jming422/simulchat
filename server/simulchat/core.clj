@@ -5,11 +5,11 @@
    [immutant.web.middleware :as web-middleware]
    [compojure.route :as route]
    [environ.core :refer (env)]
-   [compojure.core :refer (ANY GET defroutes context)]
-   [ring.util.response :refer (response redirect content-type)])
+   [compojure.core :refer (GET defroutes context)]
+   [ring.util.response :refer (redirect)])
   (:gen-class))
 
-(defonce websocket-clients (atom #{}))
+(defonce websocket-clients (atom []))
 
 (def websocket-callbacks
   "WebSocket callback functions"
@@ -21,11 +21,13 @@
                   (async/close channel))))
    :on-close (fn [channel {:keys [code reason]}]
                (println "Closing WebSocket connection (code " code ", reason " reason ")")
-               (swap! websocket-clients disj channel))
+               (swap! websocket-clients (fn [l c] (vec (remove #{c} l))) channel))
    :on-message (fn [ch m]
-                 (println m " from " (async/originating-request ch))
-                 (doseq [c (remove #{ch} (deref websocket-clients))]
-                   (async/send! c m)))})
+                 (let [clients @websocket-clients
+                       i (first (filter #(= ch (nth clients %)) (range (count clients))))]
+                   (println m "from client" (+ i 1))
+                   (doseq [c (remove #{ch} clients)]
+                     (async/send! c m))))})
 
 (defroutes routes
   (GET "/" {c :context} (redirect (str c "/index.html")))
