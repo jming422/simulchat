@@ -1,7 +1,7 @@
 /** @jsx jsx */
 /** @jsxFrag React.Fragment */
 import React, { useState, useRef, useEffect } from 'react'; // eslint-disable-line
-import { jsx, css, keyframes } from '@emotion/core';
+import { jsx, css } from '@emotion/core';
 import _ from 'lodash';
 
 import useCRDT from './hooks/useCRDT';
