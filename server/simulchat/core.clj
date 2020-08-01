@@ -15,7 +15,12 @@
   "WebSocket callback functions"
   {:on-open (fn [channel]
               (println "Opening WebSocket connection")
-              (let [clients (swap! websocket-clients conj channel)]
+              (let [clients (swap! websocket-clients
+                                   (fn [l c]
+                                     (if-not (first (filter #{c} l))
+                                       (conj l c)
+                                       l))
+                                   channel)]
                 (when (< 2 (count clients))
                   (println "Exceeded max of 2 WebSocket connections! Closing current one...")
                   (async/close channel))))
